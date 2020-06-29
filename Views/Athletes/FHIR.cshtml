@@ -1,0 +1,357 @@
+@model MySportTeam.Models.Patient_FHIR
+
+@{
+    ViewData["Title"] = "FHIR!";
+}
+
+<h1>FHIR!</h1>
+<div>
+    <h4>Patient</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Family)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Family)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Given)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Given)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.birthDate)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.birthDate)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Gender)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Gender)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Identifier)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Identifier)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Team)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Team)
+        </dd>
+
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Position)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Position)
+        </dd>
+
+        
+    </dl>
+       <hr />
+<h4>Information from the FHIR Server: </h4> 
+  <dl class="row">
+        <dt class = "col-sm-2">
+            Server At
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.FHIRServerAddress)
+        </dd>
+    </dl>
+   <dl class="row">
+        <dt class = "col-sm-2">
+            Patient Id At Server
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => 
+            model.FHIR_Demographics.Id)
+        </dd>
+        <dt class = "col-sm-2">
+            Address
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => 
+            model.FullAddress)
+        </dd>
+        <dt class = "col-sm-2">
+            Race
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => 
+            model.Race)
+        </dd>
+   </dl>
+    <hr/>
+  
+    <h5>Patient's Conditions</h5>
+    <table class="table">
+    <thead>
+        <tr>
+            <th>
+                Status
+            </th>
+            <th>
+                Category
+            </th>
+            <th>
+                Severity
+            </th>
+            <th>
+                Code
+            </th>
+        </tr>
+    </thead>    
+     <tbody>
+         @for (int i = 0; i < Model.Conditions.Count(); i++)
+         {
+            string status = Model.Conditions[i].ClinicalStatus.Coding[0].Code;
+            string VerificationStatus=Model.Conditions[i].VerificationStatus.Coding[0].Code;
+            Hl7.Fhir.Model.FhirDateTime onsetDate= (Hl7.Fhir.Model.FhirDateTime)Model.Conditions[i].Onset;
+            TimeSpan z=new TimeSpan();
+            
+            DateTimeOffset onSetDate=(DateTimeOffset) onsetDate.ToDateTimeOffset(z);
+            string onSetDisplay=onSetDate.ToString("dd MMM yyyy");
+            string code = Model.Conditions[i].Code.Coding[0].Code
+                                         +"-"+Model.Conditions[i].Code.Coding[0].Display;
+         <tr>
+            <td>
+                @Html.DisplayFor(model => status)
+            </td>
+            <td>
+                 @Html.DisplayFor(model => VerificationStatus)
+            </td>
+            <td>
+                @Html.DisplayFor(model => onSetDisplay)
+            </td>
+            <td>
+                @Html.DisplayFor(model => code)
+            </td>
+            
+        </tr>
+         }
+    </tbody>
+   
+   </table> 
+ <hr/>
+  
+<h5>Patient's Allergies</h5>
+    <table class="table">
+    <thead>
+        <tr>
+            <th>
+                Status
+            </th>
+            <th>
+                Type
+            </th>
+            <th>
+                Category
+            </th>
+            <th>
+                Code
+            </th>
+            <th>
+                Criticality
+            </th>
+        </tr>
+    </thead>    
+     <tbody>
+         @for (int i = 0; i < Model.Allergies.Count(); i++)
+         {
+            string status=Model.Allergies[i].VerificationStatus.Coding[0].Code+"-"+Model.Allergies[i].ClinicalStatus.Coding[0].Code;
+            string code = Model.Allergies[i].Code.Coding[0].Code
+                                         +"-"+Model.Allergies[i].Code.Coding[0].Display;
+            string type = Model.Allergies[i].Type.Value.ToString();
+            string category=Model.Allergies[i].Category.ToArray()[0].ToString();
+            string criticality = Model.Allergies[i].Code.Coding[0].Code
+                                         +"-"+Model.Allergies[i].Code.Coding[0].Display;
+            
+                                         
+         <tr>
+            <td>
+                @Html.DisplayFor(model => status)
+            </td>
+            <td>
+                 @Html.DisplayFor(model => type)
+            </td>
+            <td>
+                @Html.DisplayFor(model => category)
+            </td>
+            <td>
+                @Html.DisplayFor(model => code)
+            </td>
+            <td>
+                @Html.DisplayFor(model => criticality)
+            </td>
+            
+        </tr>
+         }
+    </tbody>
+   
+   </table> 
+
+ <hr/>
+  
+<h5>Patient's Medications</h5>
+    <table class="table">
+    <thead>
+        <tr>
+            <th>
+                Status
+            </th>
+            <th>
+                Intent
+            </th>
+            <th>
+                Medication
+            </th>
+            <th>
+                Authored On
+            </th>
+           </tr>
+    </thead>    
+     <tbody>
+         @for (int i = 0; i < Model.Medications.Count(); i++)
+         {
+            string status=Model.Medications[i].Status.Value.ToString();
+            string intent=Model.Medications[i].Intent.Value.ToString();
+            Hl7.Fhir.Model.CodeableConcept cc = (Hl7.Fhir.Model.CodeableConcept) Model.Medications[i].Medication;
+            string code=cc.Coding[0].Code +"-"+cc.Coding[0].Display;
+            DateTime authoredDate=DateTime.Parse(Model.Medications[i].AuthoredOn);
+            string authoredDisplay=authoredDate.ToString("dd MMM yyyy");
+          
+                                         
+         <tr>
+            <td>
+                @Html.DisplayFor(model => status)
+            </td>
+            <td>
+                 @Html.DisplayFor(model => intent)
+            </td>
+            <td>
+                @Html.DisplayFor(model => code)
+            </td>
+            <td>
+                @Html.DisplayFor(model => authoredDisplay)
+            </td>
+            
+        </tr>
+         }
+    </tbody>
+   
+   </table> 
+  
+ <hr/>
+  
+<h5>Patient's Immunizations</h5>
+    <table class="table">
+    <thead>
+        <tr>
+            <th>
+                Status
+            </th>
+            <th>
+                Vaccine Code
+            </th>
+            <th>
+                Route
+            </th>
+            <th>
+                Date
+            </th>
+           </tr>
+    </thead>    
+     <tbody>
+         @for (int i = 0; i < Model.Immunizations.Count(); i++)
+         {
+            string status=Model.Immunizations[i].Status.Value.ToString();
+            Hl7.Fhir.Model.CodeableConcept cc = (Hl7.Fhir.Model.CodeableConcept) Model.Immunizations[i].VaccineCode;
+            string code=cc.Coding[0].Code +"-"+cc.Coding[0].Display;
+            string ocurrenceDateTime=Model.Immunizations[i].Occurrence.ToString();
+            DateTime ocurrenceDatep=DateTime.Parse(ocurrenceDateTime);
+            string ocurrenceDate=ocurrenceDatep.ToString("dd MMM yyyy");
+            string route="";
+            Hl7.Fhir.Model.CodeableConcept ccr = (Hl7.Fhir.Model.CodeableConcept) Model.Immunizations[i].Route;
+            if (ccr!=null)                                                    
+            {
+                route=ccr.Coding[0].Code +"-"+ccr.Coding[0].Display;
+            }
+         <tr>
+            <td>
+                @Html.DisplayFor(model => status)
+            </td>
+            <td>
+                 @Html.DisplayFor(model => code)
+            </td>
+            <td>
+                @Html.DisplayFor(model => route)
+            </td>
+            <td>
+                @Html.DisplayFor(model => ocurrenceDate)
+            </td>
+            
+        </tr>
+         }
+    </tbody>
+   
+   </table> 
+  
+<h5>Practitioners Near The Patient</h5>
+    <table class="table">
+    <thead>
+        <tr>
+            <th>
+                Name
+            </th>
+            <th>
+                Address
+            </th>
+            <th>
+                Telecom
+            </th>
+           </tr>
+    </thead>    
+     <tbody>
+         @for (int i = 0; i < Model.PractitionersNear.Count(); i++)
+         {
+            string name=Model.PractitionersNear[i].Name[0].Family+","+Model.PractitionersNear[i].Name[0].Given.First();
+            string address=
+            Model.PractitionersNear[i].Address[0].Line.First()+" "+
+            Model.PractitionersNear[i].Address[0].City+" "+
+            Model.PractitionersNear[i].Address[0].PostalCode+" "+
+            Model.PractitionersNear[i].Address[0].State;
+            string telecom=
+            Model.PractitionersNear[i].Telecom[0].System+":"+Model.PractitionersNear[i].Telecom[0].Value;
+              
+            
+
+         <tr>
+            <td>
+                @Html.DisplayFor(model => name)
+            </td>
+            <td>
+                 @Html.DisplayFor(model => address)
+            </td>
+            <td>
+                @Html.DisplayFor(model => telecom)
+            </td>
+            
+        </tr>
+         }
+    </tbody>
+   
+   </table> 
+
+   </div>
+
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
