@@ -73,6 +73,32 @@ namespace MySportTeam.Controllers
             fs.GetInfo(pf);
             return View(pf);
         }
+
+        public async Task<IActionResult> Reconcile(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var athlete = await _context.Athlete
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (athlete == null)
+            {
+                return NotFound();
+            }
+            Patient_FHIR pf = new Patient_FHIR();
+            pf.Family=athlete.Family;
+            pf.Given=athlete.Given;
+            pf.Gender=athlete.Gender;
+            pf.birthDate=athlete.birthDate;
+            pf.Team=athlete.Team;
+            pf.Position=athlete.Position;
+            pf.Identifier=athlete.Identifier;
+            Patient_FHIR_Helper fs=new Patient_FHIR_Helper();
+            fs.GetInfo(pf);
+            return View(pf);
+        }
         public IActionResult Create()
         {
             return View();

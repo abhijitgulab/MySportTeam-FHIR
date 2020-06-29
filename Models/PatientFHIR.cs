@@ -18,6 +18,14 @@ namespace MySportTeam.Models
         public DateTime birthDate { get; set; }
         public string Gender { get; set; }
 
+        public bool bFamilyMatch {get;set;}
+        public string FHIR_Family { get; set; }
+         public string FHIR_Given { get; set; }
+
+        [DataType(DataType.Date)]
+        public DateTime FHIR_birthDate { get; set; }
+        public string FHIR_Gender { get; set; }
+
         public string Identifier { get; set; }
         public string Team { get; set; }
         public string Position { get; set; }
@@ -58,6 +66,11 @@ namespace MySportTeam.Models
                 bool found=false;
                 if (pf.FHIR_Demographics!=null)
                 {
+                    
+                    pf.FHIR_Family = GetFhirFamily(pf.FHIR_Demographics, pf.Family);
+                    pf.FHIR_Given = GetFhirGiven(pf.FHIR_Demographics, pf.Given);
+                    pf.FHIR_birthDate = GetFhirDateOfBirth(pf.FHIR_Demographics);
+                    pf.FHIR_Gender = pf.FHIR_Demographics.Gender.ToString();
                     pf.FullAddress=GetAddress(pf.FHIR_Demographics);
                     pf.FullTelecom=GetTelecom(pf.FHIR_Demographics);
                     pf.FullEmail=GetEmail(pf.FHIR_Demographics);
@@ -267,6 +280,57 @@ namespace MySportTeam.Models
                 return te;
 
         }
+
+        public string GetFhirFamily(Patient p, string dbFamilyName)
+        {
+            string fhirFamily = "";
+            
+            foreach(var name in p.Name)
+            {
+                if(name.Family == dbFamilyName)
+                {
+                   //Fhir server and local db details match
+                    
+                    fhirFamily = name.Family;
+                    return fhirFamily;
+                }
+                else
+                {
+                    //Return back the list of family names
+                    fhirFamily = fhirFamily == "" ? name.Family : fhirFamily + ", " + name.Family;
+                }
+            }
+            return fhirFamily;
+        }
+
+        public string GetFhirGiven(Patient p, string dbGivenName)
+        {
+            string fhirGiven = "";
+            
+            foreach(var name in p.Name)
+            {
+                foreach(var given in name.Given)
+                {
+                    if(given.Equals(dbGivenName))
+                    {
+                        return given;
+                    }
+                    else
+                    {
+                        fhirGiven = fhirGiven == "" ? given : fhirGiven + ", " + given;
+                    }
+                }
+            }
+            return fhirGiven;
+        }
+
+        public DateTime GetFhirDateOfBirth(Patient p)
+        {
+            return Convert.ToDateTime(p.BirthDate);
+
+        }
+
+    }
         
-       }
+       
 }

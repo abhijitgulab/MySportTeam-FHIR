@@ -1,0 +1,90 @@
+@model MySportTeam.Models.Patient_FHIR
+
+@{
+    ViewData["Title"] = "Reconcile";
+}
+
+<h1>Reconcile Patient Details</h1>
+
+<div>
+    <h4>Patient</h4>
+    <hr />
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Field</th>
+                <th>MySportTeam</th>
+                <th>FHIR Server</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+
+           @{
+                var rowClass="";
+                if(Model.Family.Equals(Model.FHIR_Family)){
+                    rowClass = "table-success";
+                }
+                else
+                {
+                    rowClass = "table-danger";
+                } 
+            }
+            <tr class="@rowClass">
+                <td>@Html.DisplayNameFor(model => model.Family)</td>
+                <td>@Html.DisplayFor(model => model.Family)</td>
+                <td>@Html.DisplayFor(model => model.FHIR_Family)</td>
+            </tr>
+
+           @{
+                rowClass="";
+                if(Model.Given.Equals(Model.FHIR_Given)){
+                    rowClass = "table-success";
+                }
+                else
+                {
+                    rowClass = "table-danger";
+                } 
+            }
+            <tr class="@rowClass">
+                <td>@Html.DisplayNameFor(model => model.Given)</td>
+                <td>@Html.DisplayFor(model => model.Given)</td>
+                <td>@Html.DisplayFor(model => model.FHIR_Given)</td>
+            </tr> 
+             @{
+                rowClass="";
+                if(Model.birthDate.Equals(Model.FHIR_birthDate)){
+                    rowClass = "table-success";
+                }
+                else
+                {
+                    rowClass = "table-danger";
+                } 
+            }
+            <tr class="@rowClass">
+                <td>@Html.DisplayNameFor(model => model.birthDate)</td>
+                <td>@Html.DisplayFor(model => model.birthDate)</td>
+                <td>@Html.DisplayFor(model => model.FHIR_birthDate)</td>
+            </tr> 
+             @{
+                rowClass="";
+                if(Model.Gender.ToUpper().Equals(Model.FHIR_Gender.ToUpper())){
+                    rowClass = "table-success";
+                }
+                else
+                {
+                    rowClass = "table-danger";
+                } 
+            }
+            <tr class="@rowClass">
+                <td>@Html.DisplayNameFor(model => model.Gender)</td>
+                <td>@Html.DisplayFor(model => model.Gender)</td>
+                <td>@Html.DisplayFor(model => model.FHIR_Gender)</td>
+            </tr>                      
+        </tbody>
+    </table>   
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id">Edit</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
