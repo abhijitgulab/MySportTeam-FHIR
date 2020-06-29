@@ -2,6 +2,9 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using Hl7.Fhir.Rest;
 using Hl7.Fhir.Model;
+using System.Collections.Generic;
+using static Hl7.Fhir.Model.ContactPoint;
+
 namespace MySportTeam.Models
 {
 
@@ -25,6 +28,8 @@ namespace MySportTeam.Models
         public string FullAddress { get; set; }
        //This is the solution to Section A
         public string FullTelecom { get; set; }
+
+        public string FullEmail { get; set; }
         public string City { get; set; }
         public string Race { get; set; }
         //This is the solution to Section B
@@ -55,6 +60,7 @@ namespace MySportTeam.Models
                 {
                     pf.FullAddress=GetAddress(pf.FHIR_Demographics);
                     pf.FullTelecom=GetTelecom(pf.FHIR_Demographics);
+                    pf.FullEmail=GetEmail(pf.FHIR_Demographics);
                     pf.Conditions=FHIR_SearchConditions(pf.FHIR_Demographics.Id);
                     pf.Medications=FHIR_SearchMedications(pf.FHIR_Demographics.Id);
                     pf.Allergies=FHIR_SearchAllergies(pf.FHIR_Demographics.Id);
@@ -221,7 +227,42 @@ namespace MySportTeam.Models
                 string te="";
                 foreach( ContactPoint c in p.Telecom)
                     {
-                        te=te+c.System+":"+c.Value+" / ";
+                        if(c.System == ContactPointSystem.Phone)
+                        {
+                             if(string.IsNullOrEmpty(te))
+                                {
+                                    te=c.Value + " (" + c.Use + ") ";
+                                }
+                                else
+                                {
+                                    te = te + ", " + c.Value + " (" + c.Use + ") ";
+                                }
+                        }
+                       
+                        
+                    }
+                return te;
+
+        }
+
+        public string GetEmail(Hl7.Fhir.Model.Patient p)
+        {
+                string te="";
+                foreach( ContactPoint c in p.Telecom)
+                    {
+                        if(c.System == ContactPointSystem.Email)
+                        {
+                             if(string.IsNullOrEmpty(te))
+                                {
+                                    te=c.Value + " (" + c.Use + ") ";
+                                }
+                                else
+                                {
+                                    te = te + ", " + c.Value + " (" + c.Use + ") ";
+                                }
+                        }
+                       
+                        
                     }
                 return te;
 

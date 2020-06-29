@@ -89,7 +89,22 @@
         </dd>
    </dl>
     <hr/>
-  
+    <h5>Patient's Contact</h5>
+    <table class="table">
+        <tbody>
+               
+                     <tr>
+                         <td>Phones: </td>
+                         <td> @Html.DisplayFor(model => 
+            model.FullTelecom)</td>
+                     </tr>
+                     <tr>
+                         <td>Emails: </td>
+                         <td> @Html.DisplayFor(model => 
+            model.FullEmail)</td>
+                     </tr>
+        </tbody>
+    </table>
     <h5>Patient's Conditions</h5>
     <table class="table">
     <thead>
