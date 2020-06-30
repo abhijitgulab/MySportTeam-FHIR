@@ -386,7 +386,7 @@ namespace MySportTeam.Models
 
                         string ExtURL = SimpleEx.Url;
                         string ExtType = "null";
-                        //string MyValue = "";
+                        string MyValue = "";
 
                         if (SimpleEx.Value != null)
                         {
@@ -394,9 +394,9 @@ namespace MySportTeam.Models
                             if (ExtType == "Coding")
                             {
                                 Coding c = (Coding)SimpleEx.Value;
-                                //string MyCode = c.Code;
+                                string MyCode = c.Code;
                                 string MyDisplay=c.Display;
-                                //MyValue = MyCode + ":" + MyDisplay;
+                                MyValue = MyCode + ":" + MyDisplay;
                                 ExtList = ExtList +  MyDisplay +" - ";
                             }
                         }
