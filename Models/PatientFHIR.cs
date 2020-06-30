@@ -92,6 +92,7 @@ namespace MySportTeam.Models
                     pf.Immunizations=FHIR_SearchImmunizations(pf.FHIR_Demographics.Id);
                     pf.City=GetCity(pf.FHIR_Demographics);
                     pf.Race=GetRace(pf.FHIR_Demographics);
+                    pf.Ethnicity=GetEthnicity(pf.FHIR_Demographics);
                     pf.FHIRServerAddress=FHIR_EndPoint_PatientInfo;
                     if (pf.FHIR_Demographics.Address.Count>0)
                     {pf.PractitionersNear=FHIR_SearchPractitioners(pf.FHIR_Demographics.Address[0].City);};
@@ -362,6 +363,41 @@ namespace MySportTeam.Models
                                 MyValue = MyCode + ":" + MyDisplay;
                                 ;
                                 ExtList = ExtList +  MyValue+" - ";
+                            }
+                        }
+
+                    }
+                }
+             
+                return ExtList;
+
+        }
+
+        public string GetEthnicity(Hl7.Fhir.Model.Patient p)
+        {
+                
+                string ExtList = "";
+                //Extension ComplexEx = p.GetExtension("http://hl7.org/fhir/us/core/StructureDefinition/us-core-ethnicity");
+                Extension ComplexEx = p.GetExtension("http://hl7.org/fhir/us/core-r4/StructureDefinition/us-core-ethnicity");
+                if (ComplexEx != null)
+                {
+                    foreach (Extension SimpleEx in ComplexEx.Extension)
+                    {
+
+                        string ExtURL = SimpleEx.Url;
+                        string ExtType = "null";
+                        //string MyValue = "";
+
+                        if (SimpleEx.Value != null)
+                        {
+                            ExtType = SimpleEx.Value.TypeName;
+                            if (ExtType == "Coding")
+                            {
+                                Coding c = (Coding)SimpleEx.Value;
+                                //string MyCode = c.Code;
+                                string MyDisplay=c.Display;
+                                //MyValue = MyCode + ":" + MyDisplay;
+                                ExtList = ExtList +  MyDisplay +" - ";
                             }
                         }
 
