@@ -318,7 +318,7 @@
    
    </table> 
   
-<h5>Practitioners Near The Patient</h5>
+<h5>Practitioners Near The Patient's City - @Html.DisplayFor(model => model.FHIR_Demographics.Address[0].City)</h5>
     <table class="table">
     <thead>
         <tr>
@@ -331,20 +331,18 @@
             <th>
                 Telecom
             </th>
+            <th>
+                Specialty
+            </th>
            </tr>
     </thead>    
      <tbody>
-         @for (int i = 0; i < Model.PractitionersNear.Count(); i++)
+         @foreach (var practitioner in Model.PractitionersNear)
          {
-            string name=Model.PractitionersNear[i].Name[0].Family+","+Model.PractitionersNear[i].Name[0].Given.First();
-            string address=
-            Model.PractitionersNear[i].Address[0].Line.First()+" "+
-            Model.PractitionersNear[i].Address[0].City+" "+
-            Model.PractitionersNear[i].Address[0].PostalCode+" "+
-            Model.PractitionersNear[i].Address[0].State;
-            string telecom=
-            Model.PractitionersNear[i].Telecom[0].System+":"+Model.PractitionersNear[i].Telecom[0].Value;
-              
+            string name=practitioner.Name;
+            string address=practitioner.Address;
+            string telecom=practitioner.Telecom;
+            string specialty = practitioner.Specialty;  
             
 
          <tr>
@@ -356,6 +354,9 @@
             </td>
             <td>
                 @Html.DisplayFor(model => telecom)
+            </td>
+            <td>
+                @Html.DisplayFor(model => specialty)
             </td>
             
         </tr>

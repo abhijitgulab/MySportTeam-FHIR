@@ -4,9 +4,21 @@ using Hl7.Fhir.Rest;
 using Hl7.Fhir.Model;
 using System.Collections.Generic;
 using static Hl7.Fhir.Model.ContactPoint;
+using System.Linq;
 
 namespace MySportTeam.Models
 {
+
+    public class PractitionersNear
+    {
+        public string Name { get; set; }
+        public string Address { get; set; }
+
+        public string Telecom { get; set; }
+
+        public string Specialty { get; set; }
+
+    }
 
   public class Patient_FHIR
        {
@@ -52,7 +64,7 @@ namespace MySportTeam.Models
         //This is the solution  to Section C
         //Immunization
         public System.Collections.Generic.List<Hl7.Fhir.Model.Immunization> Immunizations{ get; set; }
-        public System.Collections.Generic.List<Hl7.Fhir.Model.Practitioner> PractitionersNear{ get; set; }
+        public List<PractitionersNear> PractitionersNear{ get; set; }
        }
        
 
@@ -132,19 +144,166 @@ namespace MySportTeam.Models
             return As;
 
         }
-            public System.Collections.Generic.List<Hl7.Fhir.Model.Practitioner> FHIR_SearchPractitioners(string city)
+            public List<PractitionersNear> FHIR_SearchPractitioners(string city)
         {
             
-            System.Collections.Generic.List<Hl7.Fhir.Model.Practitioner> Prs=new System.Collections.Generic.List<Hl7.Fhir.Model.Practitioner>();
+            IList<Practitioner> practitioners = new List<Practitioner>();
+            IList<PractitionerRole> practitionerRoles = new List<PractitionerRole>();
+            IList<Organization> organizations = new List<Organization>();
             var client = new Hl7.Fhir.Rest.FhirClient(FHIR_EndPoint_PatientInfo); 
             client.PreferredFormat=ResourceFormat.Json;
-            Bundle bu = client.Search <Hl7.Fhir.Model.Practitioner> (new string[]
-             {"address-city="  +city});  
-            foreach(Bundle.EntryComponent ent in bu.Entry) {  
-                Practitioner pra = (Practitioner) ent.Resource;  
-                Prs.Add(pra);
+            try
+            {
+                //Search for Practitioner in Patient's city and Reverse include all PractitionerRoles Practitioners have.
+                Bundle bu3 = client.Search<Practitioner>(new string[] { "address-city="+ city, "_revinclude=PractitionerRole:practitioner", "_include=PractitionerRole:organization" });
+
+                foreach (Bundle.EntryComponent entry in bu3.Entry)
+                {
+                    string fullUrl = entry.FullUrl;
+                    string ResourceType = entry.Resource.TypeName;
+                    if (ResourceType == "Practitioner")
+                    {
+                        Practitioner practitioner = (Practitioner)entry.Resource;
+                        practitioners.Add(practitioner);
+                    }
+                    else if (ResourceType == "PractitionerRole")
+                    {
+                        PractitionerRole practitionerRole = (PractitionerRole)entry.Resource;
+                        practitionerRoles.Add(practitionerRole);
+                    }
+                    else if (ResourceType == "Organization")
+                    {
+                        Organization organization = (Organization)entry.Resource;
+                        organizations.Add(organization);
+                    }
+
+                }
+
+                // Linq 
+                /*var practitionersNear = from practitioner in practitioners
+                join practitionerRole in practitionerRoles on "Practitioner/"+practitioner.Id equals practitionerRole.Practitioner.Url.ToString()
+                join organization in organizations on practitionerRole.Organization.Url.ToString() equals "Organization/" + organization.Id
+
+
+                select new  PractitionersNear
+                {
+                    Name = practitioner.Name.FirstOrDefault().Family + "," + practitioner.Name.FirstOrDefault().Given.FirstOrDefault(),
+                    
+                    Telecom =  string.Join(Environment.NewLine, organization.Telecom.Select(t => t.Value + " (" + t.Use + ")")),
+                    Address = string.Join(Environment.NewLine, organization.Address.FirstOrDefault().Line) +  " " +
+                              organization.Address.FirstOrDefault().City + " "+
+                              organization.Address.FirstOrDefault().PostalCode + " " +
+                              organization.Address.FirstOrDefault().State,
+                    Specialty = string.Join(Environment.NewLine, practitionerRole.Specialty.Select(s => s.Text))
+
+                };*/
+
+                //Switching to looping
+
+                // 1. First fill in the details from Practitioner resource.
+                // 2. Then check if the Practitioner is part of PractitionerRole
+                // 3. Fetch the Address details from PractitionerRole.Organization and fill the Specialty
+
+                List<PractitionersNear> practitionersNear = new List<PractitionersNear>();
+
+                foreach(var practitioner in practitioners)
+                {
+                    var newPractitionerNear = new PractitionersNear()
+                    {
+                        Name = practitioner.Name.FirstOrDefault().Family + "," + practitioner.Name.FirstOrDefault().Given.FirstOrDefault(),
+                        Telecom = string.Join(Environment.NewLine, practitioner.Telecom.Select(t => t.Value + " (" + t.Use + ")")),
+                        Address = string.Join(Environment.NewLine, practitioner.Address.FirstOrDefault().Line) +  " " +
+                              practitioner.Address.FirstOrDefault().City + " "+
+                              practitioner.Address.FirstOrDefault().PostalCode + " " +
+                              practitioner.Address.FirstOrDefault().State,
+                        Specialty = "Not Available"
+                    };
+                    bool foundPractitionerRole = false;
+                    foreach(var practitionerRole in practitionerRoles)
+                    {
+                        var practitionerRef = "Practitioner/" + practitioner.Id;
+                        if(practitionerRef.Equals(practitionerRole.Practitioner.Url.ToString()))
+                        {
+                          if(!foundPractitionerRole)
+                          {
+                             foundPractitionerRole = true;
+                             //Check for specialty
+                              newPractitionerNear.Specialty = string.Join(Environment.NewLine, practitionerRole.Specialty.Select(s => s.Text));
+                              foreach(var organization in organizations)   
+                              {
+                                   var organizationRef = "Organization/" + organization.Id;
+                                  if(organizationRef.Equals(practitionerRole.Organization.Url.ToString()))
+                                  {
+                                      newPractitionerNear.Telecom =  string.Join(Environment.NewLine, organization.Telecom.Select(t => t.Value + " (" + t.Use + ")"));
+                                      newPractitionerNear.Address = organization.Name + " " +
+                                                string.Join(Environment.NewLine, organization.Address.FirstOrDefault().Line) +  " " +
+                                                organization.Address.FirstOrDefault().City + " "+
+                                                organization.Address.FirstOrDefault().PostalCode + " " +
+                                                organization.Address.FirstOrDefault().State;
+
+                                    break;
+
+                                  }
+                                  
+
+
+                              }
+                              practitionersNear.Add(newPractitionerNear);
+                          }
+                          else
+                          {
+                              var newPractitionerNearInLoop = new PractitionersNear()
+                                {
+                                    Name = practitioner.Name.FirstOrDefault().Family + "," + practitioner.Name.FirstOrDefault().Given.FirstOrDefault(),
+                                    Telecom = string.Join(Environment.NewLine, practitioner.Telecom.Select(t => t.Value + " (" + t.Use + ")")),
+                                    Address = string.Join(Environment.NewLine, practitioner.Address.FirstOrDefault().Line) +  " " +
+                                        practitioner.Address.FirstOrDefault().City + " "+
+                                        practitioner.Address.FirstOrDefault().PostalCode + " " +
+                                        practitioner.Address.FirstOrDefault().State,
+                                    Specialty = string.Join(Environment.NewLine, practitionerRole.Specialty.Select(s => s.Text))
+                                };
+                                foreach(var organization in organizations)   
+                                {
+                                    var organizationRef = "Organization/" + organization.Id;
+                                    if(organizationRef.Equals(practitionerRole.Organization.Url.ToString()))
+                                    {
+                                        newPractitionerNearInLoop.Telecom =  string.Join(Environment.NewLine, organization.Telecom.Select(t => t.Value + " (" + t.Use + ")"));
+                                        newPractitionerNearInLoop.Address = organization.Name + " " +
+                                                    string.Join(Environment.NewLine, organization.Address.FirstOrDefault().Line) +  " " +
+                                                    organization.Address.FirstOrDefault().City + " "+
+                                                    organization.Address.FirstOrDefault().PostalCode + " " +
+                                                    organization.Address.FirstOrDefault().State;
+                                        break;
+
+                                    }
+                                    
+
+
+                                }
+                                practitionersNear.Add(newPractitionerNearInLoop);
+
+                          }
+
+                          
+                          
+                          
+
+                        }
+                    }
+                    if(!foundPractitionerRole) 
+                             practitionersNear.Add(newPractitionerNear);
+                }
+
+
+                return practitionersNear;
+               
+       
             }
-            return Prs;
+            catch (FhirOperationException Exc)
+            {
+                return new List<PractitionersNear>();
+            }
+
 
         }
     
