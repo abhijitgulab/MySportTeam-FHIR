@@ -65,6 +65,15 @@ namespace MySportTeam.Models
         //Immunization
         public System.Collections.Generic.List<Hl7.Fhir.Model.Immunization> Immunizations{ get; set; }
         public List<PractitionersNear> PractitionersNear{ get; set; }
+
+        public Patient_FHIR()
+        {
+            Conditions = new List<Condition>();
+            Allergies = new List<AllergyIntolerance>();
+            Medications = new List<MedicationRequest>();
+            Immunizations = new List<Immunization>();
+        }
+
        }
        
 
@@ -74,7 +83,7 @@ namespace MySportTeam.Models
 
            public bool GetInfo(Patient_FHIR pf)
            {
-                pf.FHIR_Demographics=FHIR_SearchByIdentifier(pf.Identifier);
+                pf.FHIR_Demographics=FHIR_SearchByIdentifier(ref pf);
                 bool found=false;
                 if (pf.FHIR_Demographics!=null)
                 {
@@ -86,10 +95,10 @@ namespace MySportTeam.Models
                     pf.FullAddress=GetAddress(pf.FHIR_Demographics);
                     pf.FullTelecom=GetTelecom(pf.FHIR_Demographics);
                     pf.FullEmail=GetEmail(pf.FHIR_Demographics);
-                    pf.Conditions=FHIR_SearchConditions(pf.FHIR_Demographics.Id);
-                    pf.Medications=FHIR_SearchMedications(pf.FHIR_Demographics.Id);
-                    pf.Allergies=FHIR_SearchAllergies(pf.FHIR_Demographics.Id);
-                    pf.Immunizations=FHIR_SearchImmunizations(pf.FHIR_Demographics.Id);
+                    //pf.Conditions=FHIR_SearchConditions(pf.FHIR_Demographics.Id);
+                    //pf.Medications=FHIR_SearchMedications(pf.FHIR_Demographics.Id);
+                    //pf.Allergies=FHIR_SearchAllergies(pf.FHIR_Demographics.Id);
+                    //pf.Immunizations=FHIR_SearchImmunizations(pf.FHIR_Demographics.Id);
                     pf.City=GetCity(pf.FHIR_Demographics);
                     pf.Race=GetRace(pf.FHIR_Demographics);
                     pf.Ethnicity=GetEthnicity(pf.FHIR_Demographics);
@@ -101,18 +110,49 @@ namespace MySportTeam.Models
                 return found;
                 
         }
-       public Hl7.Fhir.Model.Patient FHIR_SearchByIdentifier(string Identifier)
+       public Hl7.Fhir.Model.Patient FHIR_SearchByIdentifier(ref Patient_FHIR pf)
         {
-             Hl7.Fhir.Model.Patient  o=new  Hl7.Fhir.Model.Patient() ;
+            string Identifier = pf.Identifier;
+            Hl7.Fhir.Model.Patient  patient=new  Hl7.Fhir.Model.Patient() ;
             var client = new Hl7.Fhir.Rest.FhirClient(FHIR_EndPoint_PatientInfo); 
             client.PreferredFormat=ResourceFormat.Json;
             Bundle bu = client.Search <Hl7.Fhir.Model.Patient> (new string[]
-             {"identifier="  +Identifier});  
-            if (bu.Entry.Count>0)
+                                                                {"identifier="  +Identifier,
+                                                                "_revinclude=AllergyIntolerance:patient",
+                                                                "_revinclude=Condition:subject",
+                                                                "_revinclude=MedicationRequest:subject",
+                                                                "_revinclude=Immunization:patient"});  
+            foreach (Bundle.EntryComponent entry in bu.Entry)
+            {
+                    string ResourceType = entry.Resource.TypeName;
+                    if (ResourceType == "Patient")
                     {
-                        o=(Hl7.Fhir.Model.Patient)bu.Entry[0].Resource;
+                        patient = (Patient)entry.Resource;
+                      
                     }
-            return o;
+                    else if (ResourceType == "AllergyIntolerance")
+                    {
+                        var allergy = (AllergyIntolerance) entry.Resource;
+                        pf.Allergies.Add(allergy);
+                    }
+                    else if (ResourceType == "Condition")
+                    {
+                        var condition = (Condition) entry.Resource;
+                        pf.Conditions.Add(condition);
+                    }
+                    else if (ResourceType == "MedicationRequest")
+                    {
+                        var medication = (MedicationRequest) entry.Resource;
+                        pf.Medications.Add(medication);
+                    }
+                    else if (ResourceType == "Immunization")
+                    {
+                        var immunization = (Immunization) entry.Resource;
+                        pf.Immunizations.Add(immunization);
+                    }
+                
+            }
+            return patient;
         }
         public System.Collections.Generic.List<Hl7.Fhir.Model.Condition> FHIR_SearchConditions(string PatientId)
         {
@@ -156,7 +196,9 @@ namespace MySportTeam.Models
             try
             {
                 //Search for Practitioner in Patient's city and Reverse include all PractitionerRoles Practitioners have.
-                Bundle bu3 = client.Search<Practitioner>(new string[] { "address-city="+ city, "_revinclude=PractitionerRole:practitioner", "_include=PractitionerRole:organization" });
+                Bundle bu3 = client.Search<Practitioner>(new string[] { "address-city="+ city, 
+                                                                        "_revinclude=PractitionerRole:practitioner",
+                                                                        "_include=PractitionerRole:organization" });
 
                 foreach (Bundle.EntryComponent entry in bu3.Entry)
                 {
@@ -300,7 +342,7 @@ namespace MySportTeam.Models
                
        
             }
-            catch (FhirOperationException Exc)
+            catch (FhirOperationException)
             {
                 return new List<PractitionersNear>();
             }

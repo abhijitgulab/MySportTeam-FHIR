@@ -270,8 +270,8 @@
             }
             string requester = Model.Medications[i].Requester.Display;
 
-            DateTime authoredDate=DateTime.Parse(Model.Medications[i].AuthoredOn);
-            string authoredDisplay=authoredDate.ToString("dd MMM yyyy");
+            //DateTime authoredDate=DateTime.Parse(Model.Medications[i].AuthoredOn);
+            string authoredDisplay=Model.Medications[i].AuthoredOn;
             string dosageText = "";
             if(Model.Medications[i].DosageInstruction != null)
             {
@@ -354,8 +354,7 @@
                 code = cc.Coding.FirstOrDefault().Code +"-"+cc.Coding.FirstOrDefault().Display;
             }
             string ocurrenceDateTime=Model.Immunizations[i].Occurrence.ToString();
-            DateTime ocurrenceDatep=DateTime.Parse(ocurrenceDateTime);
-            string ocurrenceDate=ocurrenceDatep.ToString("dd MMM yyyy");
+            
             string route="";
             Hl7.Fhir.Model.CodeableConcept ccr = (Hl7.Fhir.Model.CodeableConcept) Model.Immunizations[i].Route;
             if (ccr!=null)                                                    
@@ -377,7 +376,7 @@
                 @Html.DisplayFor(model => route)
             </td>
             <td>
-                @Html.DisplayFor(model => ocurrenceDate)
+                @Html.DisplayFor(model => ocurrenceDateTime)
             </td>
             <td>
                 @Html.DisplayFor(model => primarySource)
