@@ -232,10 +232,22 @@
                 Intent
             </th>
             <th>
+                Reported
+            </th>
+            <th>
                 Medication
             </th>
             <th>
+                Encounter
+            </th>
+            <th>
                 Authored On
+            </th>
+            <th>
+                Requester
+            </th>
+            <th>
+                Dosage
             </th>
            </tr>
     </thead>    
@@ -244,10 +256,27 @@
          {
             string status=Model.Medications[i].Status.Value.ToString();
             string intent=Model.Medications[i].Intent.Value.ToString();
+            string reported="";
+            if(Model.Medications[i].Reported != null)
+            {
+               reported = Model.Medications[i].Reported.ToString() == "true" ? "Yes" : "No";     
+            }
             Hl7.Fhir.Model.CodeableConcept cc = (Hl7.Fhir.Model.CodeableConcept) Model.Medications[i].Medication;
             string code=cc.Coding[0].Code +"-"+cc.Coding[0].Display;
+            string encounter = "";
+            if(Model.Medications[i].Encounter != null)
+            {
+                encounter = Model.Medications[i].Encounter.Display;
+            }
+            string requester = Model.Medications[i].Requester.Display;
+
             DateTime authoredDate=DateTime.Parse(Model.Medications[i].AuthoredOn);
             string authoredDisplay=authoredDate.ToString("dd MMM yyyy");
+            string dosageText = "";
+            if(Model.Medications[i].DosageInstruction != null)
+            {
+                dosageText =string.Join(";",Model.Medications[i].DosageInstruction.Select(dosage => dosage.Text));
+            }
           
                                          
          <tr>
@@ -258,10 +287,22 @@
                  @Html.DisplayFor(model => intent)
             </td>
             <td>
+                 @Html.DisplayFor(model => reported)
+            </td>
+            <td>
                 @Html.DisplayFor(model => code)
             </td>
             <td>
+                 @Html.DisplayFor(model => encounter)
+            </td>
+            <td>
                 @Html.DisplayFor(model => authoredDisplay)
+            </td>
+             <td>
+                @Html.DisplayFor(model => requester)
+            </td>
+            <td>
+                 @Html.DisplayFor(model => dosageText)
             </td>
             
         </tr>
@@ -280,6 +321,9 @@
                 Status
             </th>
             <th>
+                Status Reason
+            </th>
+            <th>
                 Vaccine Code
             </th>
             <th>
@@ -288,14 +332,27 @@
             <th>
                 Date
             </th>
+            <th>
+                Primary Source
+            </th>
            </tr>
     </thead>    
      <tbody>
          @for (int i = 0; i < Model.Immunizations.Count(); i++)
          {
             string status=Model.Immunizations[i].Status.Value.ToString();
+            Hl7.Fhir.Model.CodeableConcept statusReason = (Hl7.Fhir.Model.CodeableConcept) Model.Immunizations[i].StatusReason;
+            string statusReasonCode="";
+            if(statusReason != null)
+            {
+                statusReasonCode=statusReason.Coding.FirstOrDefault().Code +"-"+statusReason.Coding.FirstOrDefault().Display;
+            }
             Hl7.Fhir.Model.CodeableConcept cc = (Hl7.Fhir.Model.CodeableConcept) Model.Immunizations[i].VaccineCode;
-            string code=cc.Coding[0].Code +"-"+cc.Coding[0].Display;
+            string code= "";
+            if(cc!=null)
+            {
+                code = cc.Coding.FirstOrDefault().Code +"-"+cc.Coding.FirstOrDefault().Display;
+            }
             string ocurrenceDateTime=Model.Immunizations[i].Occurrence.ToString();
             DateTime ocurrenceDatep=DateTime.Parse(ocurrenceDateTime);
             string ocurrenceDate=ocurrenceDatep.ToString("dd MMM yyyy");
@@ -305,9 +362,13 @@
             {
                 route=ccr.Coding[0].Code +"-"+ccr.Coding[0].Display;
             }
+            string primarySource = Model.Immunizations[i].PrimarySource == true ? "Yes" : "No";
          <tr>
             <td>
                 @Html.DisplayFor(model => status)
+            </td>
+            <td>
+                @Html.DisplayFor(model => statusReasonCode)
             </td>
             <td>
                  @Html.DisplayFor(model => code)
@@ -317,6 +378,9 @@
             </td>
             <td>
                 @Html.DisplayFor(model => ocurrenceDate)
+            </td>
+            <td>
+                @Html.DisplayFor(model => primarySource)
             </td>
             
         </tr>
