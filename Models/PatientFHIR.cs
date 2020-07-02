@@ -101,6 +101,8 @@ namespace MySportTeam.Models
         //This is the solution  to Section C
         //Immunization
         public System.Collections.Generic.List<Hl7.Fhir.Model.Immunization> Immunizations{ get; set; }
+
+        public System.Collections.Generic.List<Hl7.Fhir.Model.CarePlan> CarePlans{ get; set; }
         public List<PractitionersNear> PractitionersNear{ get; set; }
 
         
@@ -112,6 +114,7 @@ namespace MySportTeam.Models
             Allergies = new List<AllergyIntolerance>();
             Medications = new List<MedicationRequest>();
             Immunizations = new List<Immunization>();
+            CarePlans = new List<CarePlan>();
         }
 
        }
@@ -304,7 +307,8 @@ namespace MySportTeam.Models
                                                                 "_revinclude=AllergyIntolerance:patient",
                                                                 "_revinclude=Condition:subject",
                                                                 "_revinclude=MedicationRequest:subject",
-                                                                "_revinclude=Immunization:patient"});  
+                                                                "_revinclude=Immunization:patient",
+                                                                "_revinclude=CarePlan:subject"});  
             foreach (Bundle.EntryComponent entry in bu.Entry)
             {
                     string ResourceType = entry.Resource.TypeName;
@@ -332,6 +336,11 @@ namespace MySportTeam.Models
                     {
                         var immunization = (Immunization) entry.Resource;
                         pf.Immunizations.Add(immunization);
+                    }
+                    else if (ResourceType == "CarePlan")
+                    {
+                        var careplan = (CarePlan) entry.Resource;
+                        pf.CarePlans.Add(careplan);
                     }
                 
             }

@@ -387,6 +387,59 @@
     </tbody>
    
    </table> 
+ <hr/>
+  
+<h5>Patient's Care Plan</h5>
+    <table class="table">
+    <thead>
+        <tr>
+            <th>
+                Text
+            </th>
+            <th>
+                Status 
+            </th>
+            <th>
+                Intent
+            </th>
+            <th>
+                Assess Plan
+            </th>
+           
+           </tr>
+    </thead>    
+     <tbody>
+         @for (int i = 0; i < Model.CarePlans.Count(); i++)
+         {
+            string status=Model.CarePlans[i].Status.Value.ToString();
+            string text=Model.CarePlans[i].Text != null ? Model.CarePlans[i].Text.Div : "";
+            string intent = Model.CarePlans[i].Intent.Value.ToString();
+            string assPlan = "";
+            foreach(var cat in Model.CarePlans[i].Category)
+            {
+                assPlan = assPlan + string.Join("," , cat.Coding.Select(c => c.Code + " - " + c.Display));
+
+            }
+            
+         <tr>
+            <td>
+                @Html.DisplayFor(model => status)
+            </td>
+            <td>
+                @Html.DisplayFor(model => text)
+            </td>
+            <td>
+                 @Html.DisplayFor(model => intent)
+            </td>
+            <td>
+                @Html.DisplayFor(model => assPlan)
+            </td>
+                   
+        </tr>
+         }
+    </tbody>
+   
+   </table> 
   
 <h5>Practitioners Near The Patient's City - @Html.DisplayFor(model => model.FHIR_Demographics.Address[0].City)</h5>
     <table class="table">
