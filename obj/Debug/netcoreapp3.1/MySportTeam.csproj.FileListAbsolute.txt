@@ -489,7 +489,6 @@ D:\imp_docs\SLR_docs_Presentation\Abhi_Docs\KB\FHIR\FHIR-Intermidate\3.FHIR_Clie
 D:\imp_docs\SLR_docs_Presentation\Abhi_Docs\KB\FHIR\FHIR-Intermidate\3.FHIR_Client\Assignment\FI_W02_FHIR_CLIENT_CS_PROJECT\CS\MySportTeam\obj\Debug\netcoreapp3.1\MySportTeam.csprojAssemblyReference.cache
 D:\imp_docs\SLR_docs_Presentation\Abhi_Docs\KB\FHIR\FHIR-Intermidate\3.FHIR_Client\Assignment\FI_W02_FHIR_CLIENT_CS_PROJECT\CS\MySportTeam\obj\Debug\netcoreapp3.1\staticwebassets\MySportTeam.StaticWebAssets.Manifest.cache
 D:\imp_docs\SLR_docs_Presentation\Abhi_Docs\KB\FHIR\FHIR-Intermidate\3.FHIR_Client\Assignment\FI_W02_FHIR_CLIENT_CS_PROJECT\CS\MySportTeam\obj\Debug\netcoreapp3.1\staticwebassets\MySportTeam.StaticWebAssets.xml
-D:\imp_docs\SLR_docs_Presentation\Abhi_Docs\KB\FHIR\FHIR-Intermidate\3.FHIR_Client\Assignment\FI_W02_FHIR_CLIENT_CS_PROJECT\CS\MySportTeam\obj\Debug\netcoreapp3.1\MySportTeam.MvcApplicationPartsAssemblyInfo.cache
 D:\imp_docs\SLR_docs_Presentation\Abhi_Docs\KB\FHIR\FHIR-Intermidate\3.FHIR_Client\Assignment\FI_W02_FHIR_CLIENT_CS_PROJECT\CS\MySportTeam\obj\Debug\netcoreapp3.1\MySportTeam.RazorAssemblyInfo.cache
 D:\imp_docs\SLR_docs_Presentation\Abhi_Docs\KB\FHIR\FHIR-Intermidate\3.FHIR_Client\Assignment\FI_W02_FHIR_CLIENT_CS_PROJECT\CS\MySportTeam\obj\Debug\netcoreapp3.1\MySportTeam.RazorAssemblyInfo.cs
 D:\imp_docs\SLR_docs_Presentation\Abhi_Docs\KB\FHIR\FHIR-Intermidate\3.FHIR_Client\Assignment\FI_W02_FHIR_CLIENT_CS_PROJECT\CS\MySportTeam\obj\Debug\netcoreapp3.1\MySportTeam.AssemblyInfoInputs.cache
@@ -517,3 +516,6 @@ D:\imp_docs\SLR_docs_Presentation\Abhi_Docs\KB\FHIR\FHIR-Intermidate\3.FHIR_Clie
 D:\imp_docs\SLR_docs_Presentation\Abhi_Docs\KB\FHIR\FHIR-Intermidate\3.FHIR_Client\Assignment\FI_W02_FHIR_CLIENT_CS_PROJECT\CS\MySportTeam\obj\Debug\netcoreapp3.1\MySportTeam.dll
 D:\imp_docs\SLR_docs_Presentation\Abhi_Docs\KB\FHIR\FHIR-Intermidate\3.FHIR_Client\Assignment\FI_W02_FHIR_CLIENT_CS_PROJECT\CS\MySportTeam\obj\Debug\netcoreapp3.1\MySportTeam.pdb
 D:\imp_docs\SLR_docs_Presentation\Abhi_Docs\KB\FHIR\FHIR-Intermidate\3.FHIR_Client\Assignment\FI_W02_FHIR_CLIENT_CS_PROJECT\CS\MySportTeam\obj\Debug\netcoreapp3.1\Razor\Views\Athletes\Reconcile.cshtml.g.cs
+D:\imp_docs\SLR_docs_Presentation\Abhi_Docs\KB\FHIR\FHIR-Intermidate\3.FHIR_Client\Assignment\FI_W02_FHIR_CLIENT_CS_PROJECT\CS\MySportTeam\bin\Debug\netcoreapp3.1\RestSharp.dll
+D:\imp_docs\SLR_docs_Presentation\Abhi_Docs\KB\FHIR\FHIR-Intermidate\3.FHIR_Client\Assignment\FI_W02_FHIR_CLIENT_CS_PROJECT\CS\MySportTeam\obj\Debug\netcoreapp3.1\MySportTeam.MvcApplicationPartsAssemblyInfo.cache
+D:\imp_docs\SLR_docs_Presentation\Abhi_Docs\KB\FHIR\FHIR-Intermidate\3.FHIR_Client\Assignment\FI_W02_FHIR_CLIENT_CS_PROJECT\CS\MySportTeam\obj\Debug\netcoreapp3.1\Razor\Views\Athletes\Lab.cshtml.g.cs

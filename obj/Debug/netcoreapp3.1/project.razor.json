@@ -20551,6 +20551,11 @@
       "FileKind": "mvc"
     },
     {
+      "FilePath": "d:\\imp_docs\\SLR_docs_Presentation\\Abhi_Docs\\KB\\FHIR\\FHIR-Intermidate\\3.FHIR_Client\\Assignment\\FI_W02_FHIR_CLIENT_CS_PROJECT\\CS\\MySportTeam\\Views\\Athletes\\Lab.cshtml",
+      "TargetPath": "Views\\Athletes\\Lab.cshtml",
+      "FileKind": "mvc"
+    },
+    {
       "FilePath": "d:\\imp_docs\\SLR_docs_Presentation\\Abhi_Docs\\KB\\FHIR\\FHIR-Intermidate\\3.FHIR_Client\\Assignment\\FI_W02_FHIR_CLIENT_CS_PROJECT\\CS\\MySportTeam\\Views\\Shared\\_Layout.cshtml",
       "TargetPath": "Views\\Shared\\_Layout.cshtml",
       "FileKind": "mvc"
