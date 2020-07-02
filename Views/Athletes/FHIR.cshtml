@@ -404,6 +404,9 @@
             <th>
                 Specialty
             </th>
+            <th>
+                Qualification
+            </th>
            </tr>
     </thead>    
      <tbody>
@@ -413,6 +416,7 @@
             string address=practitioner.Address;
             string telecom=practitioner.Telecom;
             string specialty = practitioner.Specialty;  
+            string qualification = practitioner.Qualification;
             
 
          <tr>
@@ -427,6 +431,9 @@
             </td>
             <td>
                 @Html.DisplayFor(model => specialty)
+            </td>
+            <td>
+                @Html.DisplayFor(model => qualification)
             </td>
             
         </tr>

@@ -19,6 +19,8 @@ namespace MySportTeam.Models
 
         public string Specialty { get; set; }
 
+        public string Qualification { get; set; }
+
     }
 
     public class Result
@@ -440,7 +442,8 @@ namespace MySportTeam.Models
                               practitioner.Address.FirstOrDefault().City + " "+
                               practitioner.Address.FirstOrDefault().PostalCode + " " +
                               practitioner.Address.FirstOrDefault().State,
-                        Specialty = "Not Available"
+                        Specialty = "Not Available",
+                        Qualification = string.Join(Environment.NewLine,practitioner.Qualification.Select(qual => qual.Code.Text))
                     };
                     bool foundPractitionerRole = false;
                     foreach(var practitionerRole in practitionerRoles)
@@ -484,7 +487,8 @@ namespace MySportTeam.Models
                                         practitioner.Address.FirstOrDefault().City + " "+
                                         practitioner.Address.FirstOrDefault().PostalCode + " " +
                                         practitioner.Address.FirstOrDefault().State,
-                                    Specialty = string.Join(Environment.NewLine, practitionerRole.Specialty.Select(s => s.Text))
+                                    Specialty = string.Join(Environment.NewLine, practitionerRole.Specialty.Select(s => s.Text)),
+                                    Qualification = string.Join(Environment.NewLine,practitioner.Qualification.Select(qual => qual.Code.Text))
                                 };
                                 foreach(var organization in organizations)   
                                 {
