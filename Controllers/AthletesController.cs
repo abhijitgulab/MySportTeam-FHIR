@@ -99,6 +99,28 @@ namespace MySportTeam.Controllers
             fs.GetInfo(pf);
             return View(pf);
         }
+
+         public async Task<IActionResult> Lab(int? id)
+        {
+           if (id == null)
+            {
+                return NotFound();
+            }
+
+            var athlete= await _context.Athlete
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (athlete == null)
+            {
+                return NotFound();
+            }
+
+            LabObserveration lab = new LabObserveration();
+            lab.Id = athlete.Id;
+            lab.FHIR_Identifier = athlete.Identifier;
+            lab.PatientDetails = athlete.Family + ", " + athlete.Given + "| " + athlete.Id + " |" + athlete.Gender + " |"  + athlete.birthDate.ToString() + " |" ;
+
+            return View(lab);
+        }
         public IActionResult Create()
         {
             return View();
@@ -118,6 +140,21 @@ namespace MySportTeam.Controllers
                 return RedirectToAction(nameof(Index));
             }
             return View(athlete);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Lab([Bind("Id,FHIR_Identifier,Code,EffectiveDate,ValueQuantity,ValueUnit,Status")] LabObserveration labObs)
+        {
+            if (ModelState.IsValid)
+            {
+               var status = ValueSet_FHIR_Expand_Helper.SaveLabObservation(labObs);
+               if(status)
+               {
+                return RedirectToAction(nameof(Index));
+               }
+               
+            }
+            return View(labObs);
         }
 
         public async Task<IActionResult> Edit(int? id)
@@ -194,6 +231,15 @@ namespace MySportTeam.Controllers
             _context.Athlete.Remove(athlete);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetValueSet(string valueset, string filter)
+        {
+            if(string.IsNullOrEmpty(filter))
+                return Ok();
+            var returnValueset = ValueSet_FHIR_Expand_Helper.ExpandValueSet(valueset,filter);
+            return Ok(returnValueset);
         }
 
         private bool AthleteExists(int id)

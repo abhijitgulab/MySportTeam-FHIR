@@ -1,0 +1,84 @@
+@model MySportTeam.Models.LabObserveration
+
+@{
+    ViewData["Title"] = "Lab";
+}
+
+<h1>Lab Observation Details</h1>
+
+<div>
+    <h4>Patient - @Html.DisplayFor(model => model.PatientDetails) </h4>
+@using (Html.BeginForm())
+
+{
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.FHIR_Identifier)
+   <br /><br />
+   @Html.Label("txtObsCode","Laboratory Test :  ")
+   <br />
+   @Html.DropDownListFor(model => model.Code, Enumerable.Empty<SelectListItem>(), new { @id = "txtObsCode", @style = "width:500px;margine-left:10px" })
+    //Created selectlist with empty enumerable of SelectListItem and given //id as “txtOptionId”
+   @Html.ValidationMessageFor(model => model.Code)
+    //Adds span of validation error message
+    <br /><br />
+    @Html.Label("dateEffective","Effective date :  ")
+    <br />
+    @Html.EditorFor(model => model.EffectiveDate, new { @type = "date", @id = "dateEffective", @style = "width:500px;"  })
+    <br /><br />
+   
+     @Html.Label("txtValueQuantity","Value :  ")
+     <br />
+     @Html.TextBoxFor(model => model.ValueQuantity, new {@id = "txtValueQuantity", @style = "width:50px"})
+     @Html.DropDownListFor(model => model.ValueUnit, Enumerable.Empty<SelectListItem>(), new { @id = "txtUnit", @style = "width:300px;" })
+    <br /><br />
+    @Html.Label("txtStatus","Status :  ")
+     <br />
+     @Html.DropDownListFor(model => model.Status, new SelectList(Enum.GetValues(typeof(Hl7.Fhir.Model.ObservationStatus))), new { @id = "txtStatus", @style = "width:300px;" })
+    <br /><br />
+    <button type="submit">Submit</button>
+
+   <br /><br />
+
+}
+
+<div>
+    <a asp-action="FHIR" asp-route-id="@Model.Id">FHIR</a> |
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section scripts{
+    <script>
+        $('#txtObsCode').select2({
+        ajax: {
+            delay: 250,
+            url: 'https://localhost:5001/Athletes/GetValueSet',
+            data: function (params) {
+            var query = {
+                filter: params.term,
+                valueset: 'top-2000-lab-observations-us'
+            }
+
+            // Query parameters will be ?search=[term]&type=public
+            return query;
+            }
+        }
+});
+
+     $('#txtUnit').select2({
+        ajax: {
+            delay: 250,
+            url: 'https://localhost:5001/Athletes/GetValueSet',
+            data: function (params) {
+            var query = {
+                filter: params.term,
+                valueset: 'ucum'
+            }
+
+            // Query parameters will be ?search=[term]&type=public
+            return query;
+            }
+        }
+});
+
+    </script>
+    }

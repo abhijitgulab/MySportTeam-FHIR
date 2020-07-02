@@ -5,6 +5,7 @@ using Hl7.Fhir.Model;
 using System.Collections.Generic;
 using static Hl7.Fhir.Model.ContactPoint;
 using System.Linq;
+using RestSharp;
 
 namespace MySportTeam.Models
 {
@@ -17,6 +18,40 @@ namespace MySportTeam.Models
         public string Telecom { get; set; }
 
         public string Specialty { get; set; }
+
+    }
+
+    public class Result
+    {
+        public string id { get; set; }
+        public string text { get; set; }
+    }
+
+    public class Results
+    {
+        public IEnumerable<Result> results  { get; set; }
+    }
+
+
+    public class LabObserveration
+    {
+        public int Id { get; set; }
+        public string FHIR_Identifier { get; set; }
+        public string PatientDetails { get; set;}
+        [Required]
+        public string Status { get; set; }
+        [Required]
+        public string Code { get; set; }
+        [Required]
+        [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
+        public DateTime EffectiveDate { get; set; }
+
+        public string  ValueQuantity { get; set;}
+
+        public string ValueUnit { get; set;}
+
+    
 
     }
 
@@ -66,6 +101,9 @@ namespace MySportTeam.Models
         public System.Collections.Generic.List<Hl7.Fhir.Model.Immunization> Immunizations{ get; set; }
         public List<PractitionersNear> PractitionersNear{ get; set; }
 
+        
+        public List<Observation> LabObserveration { get; set; }
+
         public Patient_FHIR()
         {
             Conditions = new List<Condition>();
@@ -73,6 +111,149 @@ namespace MySportTeam.Models
             Medications = new List<MedicationRequest>();
             Immunizations = new List<Immunization>();
         }
+
+       }
+
+       public static class ValueSet_FHIR_Expand_Helper
+       {
+           public static string FHIR_EndPoint_LOINC = "https://fhir.loinc.org";
+           public static string FHIR_EndPoint_UCUM = "https://clinicaltables.nlm.nih.gov/fhir/R4";
+           public static string FHIR_EndPoint =  "http://fhir.hl7fundamentals.org/r4";
+
+           public static bool SaveLabObservation(LabObserveration labObs)
+           {
+               Observation obs = new Observation();
+
+               var patIdentifier = labObs.FHIR_Identifier;
+                Hl7.Fhir.Model.Patient  patient=new  Hl7.Fhir.Model.Patient() ;
+                var client = new Hl7.Fhir.Rest.FhirClient(FHIR_EndPoint); 
+                Bundle bu = client.Search <Hl7.Fhir.Model.Patient> (new string[]
+                                                                {"identifier="  +patIdentifier });  
+                foreach (Bundle.EntryComponent entry in bu.Entry)
+                {
+                        string ResourceType = entry.Resource.TypeName;
+                        if (ResourceType == "Patient")
+                        {
+                            patient = (Patient)entry.Resource;
+                            break;
+                        }
+
+                }
+
+                obs.Subject = new ResourceReference()
+                {
+                    Display = patient.Name[0].ToString(),
+                    Reference = "Patient/" + patient.Id
+
+                };
+
+                obs.Effective = new FhirDateTime(DateTimeOffset.Parse(labObs.EffectiveDate.ToString()));
+
+                Quantity quantity = new Quantity()
+                                {
+                                    Value = Convert.ToDecimal(labObs.ValueQuantity),
+                                    Code = labObs.ValueUnit,
+                                    System = "http://unitsofmeasure.org",
+                                    Unit = labObs.ValueUnit 
+
+                                };
+                obs.Value =  quantity;
+
+                //Observation Code
+                CodeableConcept ccu = new CodeableConcept();
+                Coding cu = new Coding("http://loinc.org", labObs.Code);
+
+                ccu.Coding = new List<Coding> { cu };
+                obs.Code = ccu;
+
+                obs.Status = (ObservationStatus) Enum.Parse(typeof(ObservationStatus),labObs.Status);
+
+                Meta md = new Meta();
+                md.Profile = new string[] {"urn:" + "http://myorganization.org/StructureDefinition/us-core-patient"};
+                obs.Meta = md;
+
+                String DivNarrative =
+                "<div xmlns='http://www.w3.org/1999/xhtml'>" +
+                "Code:" + obs.Code.Coding.FirstOrDefault().Code + "<br/>" +
+                "Status:" + obs.Status + "<br/>" +
+                "</div>";
+                obs.Text = new Narrative()
+                {
+                    Status = Narrative.NarrativeStatus.Generated,
+                    Div = DivNarrative
+
+                };
+                 try
+                {
+                    Parameters inParams = new Parameters();
+                    inParams.Add("resource", obs);
+
+                    //Validate the resource
+
+                    OperationOutcome val = client.ValidateResource(obs);
+                    if(val.Errors != 0)
+                    {
+                        return false;
+                    }
+
+                    //Success : Now save the observation 
+                    Observation ObservationCreated = client.Create<Observation>(obs);
+                    
+                    
+                }
+                catch (FhirOperationException )
+                {
+                    return false;
+                }
+
+
+               return true;
+           } 
+
+           
+           public static Results ExpandValueSet(string valueset, string filter)
+           {
+               Results returnValueSet = new Results();
+
+               switch(valueset)
+               {
+                   case "top-2000-lab-observations-us":
+                    var client = new Hl7.Fhir.Rest.FhirClient(FHIR_EndPoint_LOINC);
+ 
+                    client.OnBeforeRequest += (object msender, BeforeRequestEventArgs mer) =>
+                    {
+                        mer.RawRequest.Headers.Add("Authorization", "Basic " + "YWJoaWppdGd1bGFiOiFJbmRpYW5hMDAx");  
+                    };
+
+                    var response = client.ExpandValueSet(ResourceIdentity.Build("ValueSet", valueset), filter: new FhirString(filter));
+                     var ValueSet = response.Expansion.Contains.Select( vs => new Result { id = vs.Code , text = vs.Display });
+                     returnValueSet.results = ValueSet;
+                   break;
+
+                   case "ucum" :
+                    var clientRest = new RestClient(FHIR_EndPoint_UCUM);
+                    var request = new RestRequest("/ValueSet/ucum/$expand", Method.GET);
+                    request.AddQueryParameter("filter", filter);
+                    request.AddQueryParameter("_format", "json");
+                    var responseJson = clientRest.Execute(request).Content;
+
+                    //var result = JsonConvert.DeserializeObject<ValueSet>(responseJson);
+                    var parser = new Hl7.Fhir.Serialization.FhirJsonParser();
+                    ValueSet result = parser.Parse<ValueSet>(responseJson);
+                     ValueSet = result.Expansion.Contains.Select(vs => new Result { id = vs.Code , text = vs.Display });
+                     returnValueSet.results = ValueSet;
+                   break;
+
+                   default:
+                   returnValueSet.results =  new List<Result>();
+                   break;
+
+               }
+
+                return returnValueSet;
+
+           }
+
 
        }
        
